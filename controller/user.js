@@ -79,39 +79,3 @@ return res.status(400).cookie( {
         });
     }
 };
-
-export const reset = async (req, res, next) => {
-    try {
-        const { name, email, password } = req.body;
-       
-        const userData = await user.findOne({ email });
-        if (userData) 
-        return res.status(200).cookie( {
-            httpOnly: true,
-            maxAge: 15 * 60 * 1000,
-            sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-            secure: process.env.NODE_ENV === "Development" ? false : true,
-        }).json({
-            success: true,
-            message: "User login successfully"
-        });
-else
-return res.status(400).cookie( {
-    httpOnly: true,
-    maxAge: 15 * 60 * 1000,
-    sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-    secure: process.env.NODE_ENV === "Development" ? false : true,
-}).json({
-    success: false,
-    message: "User not register Please Register first"
-});
-
-
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-    }
-};
