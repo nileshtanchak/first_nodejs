@@ -1,6 +1,8 @@
 import Express from "express";
-import {connectDb} from "./db/db.js";
+import http from "http";
 import Router from "./routes/user.js";
+import {connectDb} from "./db/db.js";
+import {init} from './Socket/socket.js';
 const app = Express();
 app.use(Express.json());
 
@@ -10,6 +12,11 @@ connectDb();
 
 app.use("/api/v1", Router);
 app.use("/api/v1", Router);
-app.listen(4000, (req, res) => {
+
+
+const server = http.createServer(app);
+
+server.listen(4000, (req, res) => {
     console.log("server connected with port 4000")
 })
+init(server);   
