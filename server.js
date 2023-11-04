@@ -2,9 +2,11 @@ import Express from "express";
 import http from "http";
 import Router from "./routes/user.js";
 import {connectDb} from "./db/db.js";
+import bodyParser from "body-parser";
 import {init} from './Socket/socket.js';
 const app = Express();
 app.use(Express.json());
+app.use(bodyParser.json());
 
 
 connectDb();
