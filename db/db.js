@@ -1,9 +1,15 @@
 
 import mongoose from "mongoose";
+import dotEnv from "dotenv";
+dotEnv.config();
+
 
 
 export const connectDb = () => {
-    mongoose.connect("mongodb://localhost:27017/myDB" ,{useNewUrlParser: true,
+console.log("Mongo Url " + process.env.MONGOURL);
+
+
+    mongoose.connect(process.env.MONGOURL, {useNewUrlParser: true,
 useUnifiedTopology: true}).then(() => {
     console.log("dbconnected");
 }).catch ((e) => {
