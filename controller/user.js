@@ -1,49 +1,51 @@
 import { user } from "../model/user.js";
 import bcrypt from "bcrypt";
-export const register = async (req, res, next) => {
+
+export const register = async (req, res) => {
     try {
+        console.log("Body of registraion:: " + req.body.toStringify)
         const { name, email, password } = req.body;
        
         const userData = await user.findOne({ email });
-        if (userData) 
-        return res.status(400).cookie( {
-            httpOnly: true,
-            maxAge: 15 * 60 * 1000,
-            sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-            secure: process.env.NODE_ENV === "Development" ? false : true,
-        }).json({
+        if (userData) {
+            return res.status(400).json({
+                success: false,
+                message: "User already registered"
+            });
+        }
+
+
+        if (!password) {
+          return res.status(400).json({
             success: false,
-            message: "User already Register"
-        });
+            message: "Password is missing or undefined",
+          });
+        } else{
+            console.log("password:: " + password);
+            // Use bcrypt.promises.hash() to hash the password
+            const hashedPassword = await bcrypt.hash(password, 10);
+    
+            console.log("hashedPassword:: " + hashedPassword);
+    
+            const saveUser = new user({ name, email, password: hashedPassword });
+            await saveUser.save();
+            
+            res.status(201).json({
+                success: true,
+                user: saveUser, 
+                message: "User registered successfully"
+            });
+        }
 
-        const hashedPassword = bcrypt.hash(password, 10, (err, hash) => {
-            if (err) {
-                console.log("error in has", err);
-            } else {
-                console.log("hass ", hash);
-            }
-        });
-
-        const saveUser = new user({ name, email, password: hashedPassword });
-        await saveUser.save();
-        res.status(201).cookie( {
-            httpOnly: true,
-            maxAge: 15 * 60 * 1000,
-            sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-            secure: process.env.NODE_ENV === "Development" ? false : true,
-        }).json({
-            success: true,
-            user: saveUser, 
-            message: "User Register successfully"
-        });
     } catch (e) {
-        console.log(e);
+        console.error(e);
         res.status(500).json({
             success: false,
             message: "Internal server error"
         });
     }
 };
+
 export const login = async (req, res, next) => {
     try {
         const { name, email, password } = req.body;
@@ -87,22 +89,12 @@ export const reset = async (req, res, next) => {
        
         const userData = await user.findOne({ email });
         if (userData) 
-        return res.status(200).cookie( {
-            httpOnly: true,
-            maxAge: 15 * 60 * 1000,
-            sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-            secure: process.env.NODE_ENV === "Development" ? false : true,
-        }).json({
+        return res.status(200).json({
             success: true,
             message: "User login successfully"
         });
 else
-return res.status(400).cookie( {
-    httpOnly: true,
-    maxAge: 15 * 60 * 1000,
-    sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-    secure: process.env.NODE_ENV === "Development" ? false : true,
-}).json({
+return res.status(400).json({
     success: false,
     message: "User not register Please Register first"
 });

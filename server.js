@@ -16,7 +16,7 @@ app.use("/api/v1", Router);
 
 const server = http.createServer(app);
 
-server.listen(4000, (req, res) => {
+server.listen(3000, "192.168.35.131", (req, res) => {
     console.log("server connected with port 4000")
 })
-init(server);   
+// init(server);   
