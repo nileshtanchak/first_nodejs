@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 
 export const register = async (req, res) => {
     try {
-        console.log("Body of registraion:: " + req.body)
+        console.log("Body of registraion:: " + JSON.stringify(req.body))
         const { name, email, password } = req.body;
        
         const userData = await user.findOne({ email });
