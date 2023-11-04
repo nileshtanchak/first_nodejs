@@ -52,22 +52,13 @@ export const login = async (req, res, next) => {
        
         const userData = await user.findOne({ email });
         if (userData) 
-        return res.status(200).cookie( {
-            httpOnly: true,
-            maxAge: 15 * 60 * 1000,
-            sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-            secure: process.env.NODE_ENV === "Development" ? false : true,
-        }).json({
+        return res.status(200).json({
             success: true,
+            userData,
             message: "User login successfully"
         });
 else
-return res.status(400).cookie( {
-    httpOnly: true,
-    maxAge: 15 * 60 * 1000,
-    sameSite: process.env.NODE_ENV === "Development" ? "lax" : "none",
-    secure: process.env.NODE_ENV === "Development" ? false : true,
-}).json({
+return res.status(400).json({
     success: false,
     message: "User not register Please Register first"
 });
