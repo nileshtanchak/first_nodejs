@@ -2,69 +2,75 @@ import { Server } from "socket.io";
 import messageModel from "../model/message.js";
 
 export const init = (server) => {
-  console.log("Socket server initialized");
+    console.log("Socket server initialized");
 
-  const io = new Server(server);
+    const io = new Server(server);
 
-  // Listen for incoming connections
-  io.on('connection', (socket) => {
-    console.log("Client connected");
+    // Listen for incoming connections
+    io.on('connection', (socket) => {
+        console.log("Client connected");
 
-    // Handle when a user joins a chat room
-    socket.on('joinRoom', (data) => {
-        const roomId = data.roomId; // Extract the 'roomId' from the received data
-        const username = data.username;
-      // Join the specified room
-      socket.join(roomId);
+        // Handle when a user joins a chat room
+        socket.on('joinRoom', (data) => {
+            const roomId = data.roomId; // Extract the 'roomId' from the received data
+            const username = data.username;
+            // Join the specified room
+            socket.join(roomId);
 
-      // Broadcast a message to the room to inform others of the new user
-      socket.to(roomId).emit('userJoined', username);
+            // Broadcast a message to the room to inform others of the new user
+            socket.to(roomId).emit('userJoined', username);
 
-      // Retrieve chat history and emit it to the user who joined
-      messageModel
-      .find({ roomId: roomId })
-      .then((messages) => {
-        socket.emit('chatHistory', messages);
-      })
-      .catch((err) => {
-        console.error('Error retrieving chat history:', err);
-      });
-    });
-
-    // Handle when a user sends a chat message
-    socket.on('sendMessage', async (roomId, message, sender) => {
-
-        roomId = roomId.toString();
-
-
-        const senderData = await messageModel.findById(roomId).populate({
-            path: 'user',
-            model: 'user', // The name of the User model
-        
+            // Retrieve chat history and emit it to the user who joined
+            messageModel
+                .find({ roomId: roomId })
+                .then((messages) => {
+                    socket.emit('chatHistory', messages);
+                })
+                .catch((err) => {
+                    console.error('Error retrieving chat history:', err);
+                });
         });
-      // Save the message to MongoDB
-      const newMessage = new messageModel({ roomId, message, senderData });
-      newMessage
-      .save()
-      .then((savedMessage) => {
-        console.log('Message saved:', savedMessage);
-  
-        // Broadcast the message to the room
-        socket.to(roomId).emit('message', savedMessage);
-  
-        // You can also emit the saved message back to the sender if needed
-        socket.emit('message', savedMessage);
-      })
-      .catch((err) => {
-        console.error('Error saving message:', err);
-      });
-  });
 
-    // Handle disconnections
-    socket.on('disconnect', () => {
-      console.log('Client disconnected');
+        // Handle when a user sends a chat message
+        socket.on('sendMessage', async (roomId, message, sender) => {
+
+            roomId = roomId.toString();
+
+
+            messageModel
+                .findById(roomId)
+                .populate('sender')
+                .exec((err, message) => {
+                    if (err) {
+                        // Handle the error
+                    } else {
+                        // The 'message.sender' property will contain user data
+                        console.log('Message with populated sender:', message);
+                    }
+                });
+            // Save the message to MongoDB
+            const newMessage = new messageModel({ roomId, message, sender: sender });
+            newMessage
+                .save()
+                .then((savedMessage) => {
+                    console.log('Message saved:', savedMessage);
+
+                    // Broadcast the message to the room
+                    socket.to(roomId).emit('message', savedMessage);
+
+                    // You can also emit the saved message back to the sender if needed
+                    socket.emit('message', savedMessage);
+                })
+                .catch((err) => {
+                    console.error('Error saving message:', err);
+                });
+        });
+
+        // Handle disconnections
+        socket.on('disconnect', () => {
+            console.log('Client disconnected');
+        });
     });
-  });
 
-  return io;
+    return io;
 };
