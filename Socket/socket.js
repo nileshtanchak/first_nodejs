@@ -32,20 +32,21 @@ export const init = (server) => {
     socket.on('sendMessage', (roomId, message, sender) => {
       // Save the message to MongoDB
       const newMessage = new messageModel({ roomId, message, sender });
-      newMessage.save((err, savedMessage) => {
-        if (err) {
-          console.error('Error saving message:', err);
-        } else {
-          console.log('Message saved:', savedMessage);
-
-          // Broadcast the message to the room
-          socket.to(roomId).emit('message', savedMessage); // Emit the saved message
-          
-          // You can also emit the saved message back to the sender if needed
-          socket.emit('message', savedMessage);
-        }
+      newMessage
+      .save()
+      .then((savedMessage) => {
+        console.log('Message saved:', savedMessage);
+  
+        // Broadcast the message to the room
+        socket.to(roomId).emit('message', savedMessage);
+  
+        // You can also emit the saved message back to the sender if needed
+        socket.emit('message', savedMessage);
+      })
+      .catch((err) => {
+        console.error('Error saving message:', err);
       });
-    });
+  });
 
     // Handle disconnections
     socket.on('disconnect', () => {
