@@ -11,7 +11,9 @@ export const init = (server) => {
     console.log("Client connected");
 
     // Handle when a user joins a chat room
-    socket.on('joinRoom', (roomId, username) => {
+    socket.on('joinRoom', (data) => {
+        const roomId = data.roomId; // Extract the 'roomId' from the received data
+        const username = data.username;
       // Join the specified room
       socket.join(roomId);
 
