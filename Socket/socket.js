@@ -1,7 +1,6 @@
 import { Server } from "socket.io";
 import messageModel from "../model/message.js";
 
-
 export const init = (server) => {
   console.log("Socket server initialized");
 
@@ -38,14 +37,14 @@ export const init = (server) => {
           console.error('Error saving message:', err);
         } else {
           console.log('Message saved:', savedMessage);
+
+          // Broadcast the message to the room
+          socket.to(roomId).emit('message', savedMessage); // Emit the saved message
+          
+          // You can also emit the saved message back to the sender if needed
+          socket.emit('message', savedMessage);
         }
       });
-
-      // Broadcast the message to the room
-      socket.to(roomId).emit('message', savedMessage); // Emit the saved message
-
-      // You can also emit the saved message back to the sender if needed
-      socket.emit('message', savedMessage);
     });
 
     // Handle disconnections
@@ -56,6 +55,3 @@ export const init = (server) => {
 
   return io;
 };
-
-
-
