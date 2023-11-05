@@ -36,18 +36,6 @@ export const init = (server) => {
 
             roomId = roomId.toString();
 
-
-            messageModel
-                .findById(roomId)
-                .populate('sender')
-                .exec((err, message) => {
-                    if (err) {
-                        // Handle the error
-                    } else {
-                        // The 'message.sender' property will contain user data
-                        console.log('Message with populated sender:', message);
-                    }
-                });
             // Save the message to MongoDB
             const newMessage = new messageModel({ roomId, message, sender: sender });
             newMessage
