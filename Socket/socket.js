@@ -19,12 +19,13 @@ export const init = (server) => {
       socket.to(roomId).emit('userJoined', username);
 
       // Retrieve chat history and emit it to the user who joined
-      messageModel.find({ roomId: roomId }, (err, messages) => {
-        if (err) {
-          console.error('Error retrieving chat history:', err);
-        } else {
-          socket.emit('chatHistory', messages);
-        }
+      messageModel
+      .find({ roomId: roomId })
+      .then((messages) => {
+        socket.emit('chatHistory', messages);
+      })
+      .catch((err) => {
+        console.error('Error retrieving chat history:', err);
       });
     });
 
