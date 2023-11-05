@@ -3,7 +3,10 @@ import mongoose from 'mongoose';
 const messageSchema = new mongoose.Schema({
   roomId: String,
   message: String,
-  sender: String,
+  sender: {
+    type: Schema.Types.ObjectId,
+    ref: "user"
+},
   timestamp: { type: Date, default: Date.now },
 });
 
