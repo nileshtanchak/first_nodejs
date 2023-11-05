@@ -32,12 +32,18 @@ export const init = (server) => {
     });
 
     // Handle when a user sends a chat message
-    socket.on('sendMessage', (roomId, message, sender) => {
+    socket.on('sendMessage', async (roomId, message, sender) => {
 
         roomId = roomId.toString();
 
+
+        const senderData = await messageModel.findById(roomId).populate({
+            path: 'user',
+            model: 'user', // The name of the User model
+        
+        });
       // Save the message to MongoDB
-      const newMessage = new messageModel({ roomId, message, sender });
+      const newMessage = new messageModel({ roomId, message, senderData });
       newMessage
       .save()
       .then((savedMessage) => {
