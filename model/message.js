@@ -4,7 +4,7 @@ const messageSchema = new mongoose.Schema({
   roomId: String,
   message: String,
   sender: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "user"
 },
   timestamp: { type: Date, default: Date.now },
