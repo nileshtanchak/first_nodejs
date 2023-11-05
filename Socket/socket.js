@@ -30,6 +30,9 @@ export const init = (server) => {
 
     // Handle when a user sends a chat message
     socket.on('sendMessage', (roomId, message, sender) => {
+
+        roomId = roomId.toString();
+
       // Save the message to MongoDB
       const newMessage = new messageModel({ roomId, message, sender });
       newMessage
