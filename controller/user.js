@@ -48,27 +48,42 @@ export const register = async (req, res) => {
 
 export const login = async (req, res, next) => {
     try {
-        const { name, email, password } = req.body;
+        const { email, password } = req.body;
 
+        // Find the user by email
         const userData = await user.findOne({ email });
-        if (userData)
+
+        // Check if the user exists
+        if (!userData) {
+            return res.status(400).json({
+                success: false,
+                message: "User not registered. Please register first."
+            });
+        }
+
+        // Compare the entered password with the hashed password stored in the database
+        const passwordMatch = await bcrypt.compare(password, userData.password);
+
+        if (passwordMatch) {
+            // Passwords match, user is authenticated
             return res.status(200).json({
                 success: true,
                 userData,
-                message: "User login successfully"
+                message: "User login successful."
             });
-        else
-            return res.status(400).json({
+        } else {
+            // Passwords do not match, authentication failed
+            return res.status(401).json({
                 success: false,
-                message: "User not register Please Register first"
+                message: "Invalid login credentials."
             });
-
+        }
 
     } catch (e) {
         console.log(e);
         res.status(500).json({
             success: false,
-            message: "Internal server error"
+            message: "Internal server error."
         });
     }
 };
